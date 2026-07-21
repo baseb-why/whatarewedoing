@@ -3,152 +3,944 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=<device-width>, initial-scale=1.0">
-    <title>we are</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>we are — gambling is good (joke)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0A0A0A',
+                        light: '#FAFAFA',
+                        accent: '#F45D22',
+                        'accent-light': '#FF7A45',
+                        muted: '#555555',
+                        'muted-light': '#888888',
+                    },
+                    fontFamily: {
+                        display: ['Syne', 'sans-serif'],
+                        body: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box }
+        html { background: #0A0A0A }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0A0A0A;
+            color: #FAFAFA;
+            overflow-x: hidden
+        }
+        ::selection { background: #F45D22; color: #0A0A0A }
+        ::-webkit-scrollbar { width: 0 }
+
+        .preloader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #0A0A0A;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center
+        }
+        .preloader-counter {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(4rem, 12vw, 10rem);
+            font-weight: 800; line-height: 1; color: #FAFAFA
+        }
+        .preloader-bar {
+            width: 200px; height: 1px;
+            background: #222; margin-top: 2rem;
+            position: relative; overflow: hidden; border-radius: 1px
+        }
+        .preloader-bar-fill {
+            height: 100%; background: #F45D22;
+            width: 0%; border-radius: 1px
+        }
+        .preloader-sub {
+            font-size: .7rem; letter-spacing: .25em;
+            text-transform: uppercase; color: #444;
+            margin-top: 1.5rem; font-family: 'Inter', sans-serif
+        }
+
+        .cursor {
+            width: 20px; height: 20px;
+            border: 1.5px solid rgba(250, 250, 250, .4);
+            border-radius: 50%; position: fixed;
+            pointer-events: none; z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width .3s, height .3s, border-color .3s, background .3s;
+            mix-blend-mode: difference
+        }
+        .cursor.hover {
+            width: 60px; height: 60px;
+            background: rgba(244, 93, 34, .12);
+            border-color: #F45D22
+        }
+        .cursor-dot {
+            width: 4px; height: 4px;
+            background: #FAFAFA; border-radius: 50%;
+            position: fixed; pointer-events: none;
+            z-index: 9998; transform: translate(-50%, -50%);
+            mix-blend-mode: difference
+        }
+
+        .line-wrap { overflow: hidden; display: block }
+        .line-inner { display: block; transform: translateY(110%) }
+
+        .marquee-track {
+            display: flex; width: max-content;
+            animation: marquee 25s linear infinite
+        }
+        .marquee-track-reverse { animation-direction: reverse }
+        @keyframes marquee {
+            0% { transform: translateX(0) }
+            100% { transform: translateX(-50%) }
+        }
+
+        .horizontal-section { overflow: hidden }
+        .horizontal-track {
+            display: flex; width: max-content;
+            will-change: transform
+        }
+        .horizontal-card {
+            width: 55vw; min-width: 460px;
+            height: 65vh; min-height: 480px;
+            margin-right: 1.5rem; flex-shrink: 0;
+            position: relative; overflow: hidden;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, .06);
+            background: #111
+        }
+
+        .img-parallax { overflow: hidden; border-radius: 1rem }
+        .img-parallax img { transform: scale(1.25); will-change: transform }
+
+        .reason-item {
+            position: relative; overflow: hidden;
+            border-radius: 1rem; cursor: pointer
+        }
+        .reason-item img {
+            transition: transform .8s cubic-bezier(.25, .46, .45, .94)
+        }
+        .reason-item:hover img { transform: scale(1.05) }
+        .reason-item .overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, .85) 0%, transparent 60%);
+            opacity: 0; transition: opacity .5s
+        }
+        .reason-item:hover .overlay { opacity: 1 }
+        .reason-item .item-info {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 2rem;
+            transform: translateY(20px); opacity: 0;
+            transition: all .5s
+        }
+        .reason-item:hover .item-info {
+            transform: translateY(0); opacity: 1
+        }
+
+        nav a { position: relative }
+        nav a::after {
+            content: ''; position: absolute;
+            bottom: -2px; left: 0; width: 0; height: 1px;
+            background: #F45D22; transition: width .3s
+        }
+        nav a:hover::after { width: 100% }
+
+        .mag-btn {
+            position: relative; display: inline-flex;
+            align-items: center; justify-content: center;
+            padding: 1.25rem 3rem; background: #F45D22;
+            color: #0A0A0A; font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: .8rem;
+            letter-spacing: .12em; text-transform: uppercase;
+            border-radius: 100px; border: none; cursor: pointer;
+            transition: background .3s, transform .15s
+        }
+        .mag-btn:hover { background: #FF7A45 }
+        .mag-btn-outline {
+            background: transparent;
+            border: 1px solid rgba(250, 250, 250, .2);
+            color: #FAFAFA
+        }
+        .mag-btn-outline:hover {
+            border-color: #F45D22; color: #F45D22;
+            background: transparent
+        }
+
+        .grain {
+            position: fixed; inset: 0; z-index: 9990;
+            pointer-events: none; opacity: .025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-repeat: repeat; background-size: 200px 200px
+        }
+
+        .stat-num {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: clamp(2.5rem, 7vw, 5.5rem);
+            line-height: 1; color: #F45D22
+        }
+
+        .divider {
+            width: 100%; height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, .08), transparent)
+        }
+
+        .glow-card {
+            position: relative; overflow: hidden
+        }
+        .glow-card::before {
+            content: ''; position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at center, rgba(244, 93, 34, .06) 0%, transparent 50%);
+            opacity: 0; transition: opacity .5s; pointer-events: none
+        }
+        .glow-card:hover::before { opacity: 1 }
+
+        .pill {
+            display: inline-block; padding: 0.3rem 0.9rem;
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 100px; font-size: 0.7rem;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: #888
+        }
+
+        @media(max-width:768px) {
+            .horizontal-card {
+                width: 85vw; min-width: unset; height: 55vh
+            }
+            .cursor, .cursor-dot { display: none !important }
+        }
+    </style>
+<base target="_blank">
 </head>
 
 <body>
-    <h1>We are</h1>
-
-
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <p> Why Gambling is Actually the GOAT (No Cap)
-
-        *A totally serious, peer-reviewed, 100% factual presentation*
-
-
-        ## 1. It's Basically Financial Speedrun Any% 🏃‍♂️
-
-        Why grind 40 hours a week for decades when you can unlock instant bankruptcy speedrun?
-
-        - 9-to-5 job: Boring, slow, requires "skills" and "effort"
-        - Gambling: One spin = instant dopamine. One bad spin = instant character development arc.
-
-        > *"The house always wins"* — yeah, because the house is jealous of your main character energy.
-
-
-
-        2. It's the Ultimate Personality Trait
-
-        Let's be real — being "good with money" is out. Being "chronically online and in debt" is IN.
-
-        Gambling Equivalent (Main Character Energy) |
-        "I'm built different, I YOLO'd my rent" |
-        "I have a 'system'" |
-        "I just feel lucky today" |
-        "The slot machine was *due*" |
-
-        Your Spotify Wrapped is mid. Your debt-to-income ratio? Now that's a conversation starter.
-
-
-
-        3. It Builds Character (Literally)
-
-        Every loss is just **plot armor** for your comeback story.
-
-        - Lost $500 on blackjack? That's not a mistake, that's **lore**.
-        - Chased your losses until 4am? That's **commitment**.
-        - Told yourself "just one more hand" for 6 hours? That's **passion**.
-
-        You're not addicted — you're **dedicated**. There's a difference. (There isn't, but pretend.)
-
-
-
-        4. Free Drinks = Passive Income
-
-        Vegas casinos give you FREE alcohol while you lose money. Do the math:
-
-        - You lose $1,000
-        - You drink $47 worth of watered-down vodka cranberries
-        - Net profit: -$953
-
-        But like, *technically* you got something back. That's called **hustling the system**.
-
-
-        5. It's a Social Activity (Kinda)
-
-        Nothing bonds Gen Z like collective financial ruin.
-
-        - Group trip to the casino**: Everyone leaves broke, but the memes? Immortal.
-        - Sports betting group chat**: 12 people, 0 winners, 47 "I knew it" messages after the game.
-        - Poker night: You lose $20 to your cousin who "doesn't even know the rules" but somehow always wins.
-
-        It's not gambling — it's **community building**. Very wholesome. Very mindful. Very demure.
-
-
-
-        6. The Math is Just a Suggestion 📊
-
-        "Statistically, you'll lose money long-term" — okay, and?
-
-        We also statistically shouldn't eat Tide Pods, yet here we are.
-
-        Gambling is about **vibes**, not variables. The roulette wheel doesn't know math. It knows **energy**. And your
-        energy? It's giving *main character who definitely won't lose this time*.
-
-
-
-        ## 7. It Prepares You for Real Life
-
-        Harvard could never.
-
-
-
-        ## 8. The Near-Misses Hit Different
-
-        You got two 7s and the third was a cherry?
-
-        That's not a loss. That's **emotional damage with a side of hope**. The machine *wanted* you to win. It was
-        *flirting* with you. Next time, it promises. Next time.
-
-
-
-        9. Crypto is Just Gambling with WiFi
-
-        You already YOLO'd into Dogecoin because a billionaire tweeted a meme.
-
-        At least at a casino, someone hands you a free hot dog while you lose. In crypto, you lose money **and** get
-        hacked by a Discord mod.
-
-        Gambling is the **analog version** of your portfolio. Respect the classics.
-
-
-
-        10. The Comeback Arc is Inevitable 🏆
-
-        Every gambler has the same movie playing in their head:
-
-        > One day, I'll walk in with $20, hit the progressive jackpot, and never work again. I'll buy a Tesla. I'll
-        move to Bali. I'll post about it. The haters will be silent."*
-
-        Will it happen? **Statistically, no.**
-
-        But will you keep playing because the **narrative** is too good to quit?
-
-        Absolutely.** And that's called *committing to the bit*.
-
-
-
-        Final Boss Take 🎤
-
-        Gambling isn't a problem. It's a **lifestyle**. It's a **vibe**. It's the only hobby where you can lose
-        everything and still log onto Twitter to post:
-
-        > The algorithm was rigged but my spirit remains unbroken. We go again tomorrow. 🙏"*
-
-        And honestly? That's beautiful. That's art. That's **Gen Z**.
-
-        ---
-
-        *Disclaimer: This is a joke. Please do not gamble. Your parents love you. Your future self will thank you. The
-        house actually does always win. Seek help if you need it:
-        *Now go touch grass. Literally. It's free.* 🌿</p>
+    <div class="grain"></div>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+
+    <div class="preloader" id="preloader">
+        <div class="preloader-counter" id="preloaderCount">0</div>
+        <div class="preloader-bar">
+            <div class="preloader-bar-fill" id="preloaderBar"></div>
+        </div>
+        <div class="preloader-sub">loading your financial ruin</div>
+    </div>
+
+    <nav class="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-6 flex items-center justify-between mix-blend-difference" id="navbar">
+        <a href="#" class="font-display font-800 text-lg tracking-tight hoverable">we are.</a>
+        <div class="hidden md:flex items-center gap-10">
+            <a href="#about" class="text-xs font-medium uppercase tracking-widest text-light/60 hover:text-light transition hoverable">the lore</a>
+            <a href="#features" class="text-xs font-medium uppercase tracking-widest text-light/60 hover:text-light transition hoverable">why it is good</a>
+            <a href="#work" class="text-xs font-medium uppercase tracking-widest text-light/60 hover:text-light transition hoverable">the reasons</a>
+            <a href="#contact" class="text-xs font-medium uppercase tracking-widest text-light/60 hover:text-light transition hoverable">do not do it</a>
+        </div>
+        <button class="md:hidden text-light hoverable" id="menuToggle">
+            <span class="iconify" data-icon="lucide:menu" data-width="24"></span>
+        </button>
+    </nav>
+
+    <div class="fixed inset-0 z-40 bg-dark/98 backdrop-blur-md flex flex-col items-center justify-center gap-8 translate-x-full transition-transform duration-500" id="mobileMenu">
+        <a href="#about" class="font-display text-3xl font-700 hoverable mobile-link">the lore</a>
+        <a href="#features" class="font-display text-3xl font-700 hoverable mobile-link">why it is good</a>
+        <a href="#work" class="font-display text-3xl font-700 hoverable mobile-link">the reasons</a>
+        <a href="#contact" class="font-display text-3xl font-700 hoverable mobile-link">do not do it</a>
+    </div>
+
+    <section class="min-h-screen flex flex-col justify-center px-6 md:px-12 pt-32 pb-20 relative" id="hero">
+        <div class="max-w-[1400px] mx-auto w-full">
+            <div class="mb-8 flex items-center gap-4 flex-wrap">
+                <span class="text-xs font-medium uppercase tracking-widest text-muted-light opacity-0" id="heroLabel">satire — gen z edition — not financial advice</span>
+            </div>
+            <h1 class="font-display font-800 leading-[0.9] tracking-tight" id="heroTitle">
+                <span class="line-wrap"><span class="line-inner text-[clamp(2.8rem,8vw,7.5rem)]">why gambling</span></span>
+                <span class="line-wrap"><span class="line-inner text-[clamp(2.8rem,8vw,7.5rem)] text-accent">is actually</span></span>
+                <span class="line-wrap"><span class="line-inner text-[clamp(2.8rem,8vw,7.5rem)]">the goat</span></span>
+                <span class="line-wrap"><span class="line-inner text-[clamp(2.8rem,8vw,7.5rem)]">no cap fr</span></span>
+            </h1>
+            <div class="mt-12 md:mt-16 flex flex-col md:flex-row md:items-end justify-between gap-8">
+                <p class="text-muted-light text-base md:text-lg font-light leading-relaxed max-w-md opacity-0" id="heroDesc">
+                    this is a joke. a satire. a bit. a goof. a gag. a lark. a shenanigan. we are not endorsing gambling. 
+                    we are making fun of the gen z brainrot that would unironically think this. please do not gamble. 
+                    your parents love you. your future self will thank you. the house always wins. seek help if you need it.
+                </p>
+                <a href="#about" class="mag-btn hoverable opacity-0" id="heroBtn">hear the lore</a>
+            </div>
+        </div>
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-0" id="scrollHint">
+            <span class="text-[10px] uppercase tracking-[.2em] text-muted">scroll to ruin your life bestie</span>
+            <div class="w-[1px] h-12 bg-gradient-to-b from-muted to-transparent relative overflow-hidden">
+                <div class="w-full h-4 bg-accent absolute top-0 animate-pulse"></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="py-6 border-y border-white/5 overflow-hidden">
+        <div class="marquee-track">
+            <div class="flex items-center gap-8 px-4">
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">the house always wins</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">financial speedrun any%</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">vibes over variables</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">committing to the bit</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">we are.</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">free drinks = passive income</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">emotional damage with hope</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">touch grass not slots</span>
+                <span class="text-accent text-xl">✦</span>
+            </div>
+            <div class="flex items-center gap-8 px-4">
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">the house always wins</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">financial speedrun any%</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">vibes over variables</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">committing to the bit</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">we are.</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">free drinks = passive income</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">emotional damage with hope</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">touch grass not slots</span>
+                <span class="text-accent text-xl">✦</span>
+            </div>
+        </div>
+    </div>
+
+    <section class="py-32 md:py-48 px-6 md:px-12" id="about">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
+                <div class="md:col-span-5">
+                    <span class="text-xs font-medium uppercase tracking-widest text-muted-light about-reveal">okay so like the lore is</span>
+                    <h2 class="font-display font-800 text-4xl md:text-5xl lg:text-6xl leading-[0.95] tracking-tight mt-4">
+                        <span class="line-wrap about-reveal"><span class="line-inner">we made a</span></span>
+                        <span class="line-wrap about-reveal"><span class="line-inner">satire page</span></span>
+                        <span class="line-wrap about-reveal"><span class="line-inner text-accent">because we</span></span>
+                        <span class="line-wrap about-reveal"><span class="line-inner">were bored</span></span>
+                    </h2>
+                </div>
+                <div class="md:col-span-1"></div>
+                <div class="md:col-span-6 flex flex-col justify-end">
+                    <p class="text-muted-light text-base md:text-lg font-light leading-relaxed mb-8 about-reveal">
+                        so basically we kept seeing people unironically defend gambling on twitter like it is a personality trait. 
+                        "i have a system" "the machine was due" "i am built different." and we were like "what if we made a whole 
+                        landing page that takes this energy seriously?" and then we actually built it. at 3am. fueled by monster 
+                        energy and the sheer audacity to not learn from our mistakes.
+                    </p>
+                    <p class="text-muted-light text-base md:text-lg font-light leading-relaxed mb-8 about-reveal">
+                        every section on this page is a joke. a bit. a goof. if you read this and think "wow gambling sounds great" 
+                        please seek help immediately. the national problem gambling helpline is 1-800-522-4700. we are not your dad 
+                        but we are very worried about you. this page is what would happen if a gen z tiktok comment section became a 
+                        startup landing page.
+                    </p>
+                    <p class="text-muted-light text-base md:text-lg font-light leading-relaxed mb-10 about-reveal">
+                        the best part? people will share this ironically, then someone will share it unironically, and then we will 
+                        have to add a bigger disclaimer. but until then? we ride at dawn. we commit to the bit. we gaslight, gatekeep, 
+                        girlboss our way through financial literacy. the house always wins but our engagement metrics? also winning.
+                    </p>
+                    <div class="img-parallax about-reveal h-[300px] md:h-[400px]">
+                        <img src="https://picsum.photos/seed/gambling-lore/800/600.jpg" alt="the lore" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 px-6 md:px-12">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="divider mb-20"></div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8">
+                <div class="stat-item">
+                    <div class="stat-num" data-count="100">0</div>
+                    <div class="text-xs uppercase tracking-widest text-muted mt-3">percent chance the house wins</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" data-count="0">0</div>
+                    <div class="text-xs uppercase tracking-widest text-muted mt-3">dollars you will keep long-term</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" data-count="47">0</div>
+                    <div class="text-xs uppercase tracking-widest text-muted mt-3">dollars in free drinks value</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" data-count="1">0</div>
+                    <div class="text-xs uppercase tracking-widest text-muted mt-3">helpline you should call</div>
+                </div>
+            </div>
+            <div class="divider mt-20"></div>
+        </div>
+    </section>
+
+    <section class="py-20 px-6 md:px-12">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="border border-white/5 rounded-2xl p-8 md:p-10 glow-card flex flex-col justify-between min-h-[260px] how-card">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-accent font-display font-800 text-2xl">01</span>
+                            <div class="h-[1px] flex-1 bg-white/5"></div>
+                        </div>
+                        <h3 class="font-display font-700 text-xl md:text-2xl mb-3">financial speedrun any%</h3>
+                        <p class="text-muted-light font-light leading-relaxed text-sm">why grind 40 hours a week for decades when you can unlock instant bankruptcy speedrun? 9-to-5 job: boring, slow, requires skills and effort. gambling: one spin = instant dopamine. one bad spin = instant character development arc. the house always wins — yeah, because the house is jealous of your main character energy.</p>
+                    </div>
+                </div>
+                <div class="border border-white/5 rounded-2xl p-8 md:p-10 glow-card flex flex-col justify-between min-h-[260px] how-card">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-accent font-display font-800 text-2xl">02</span>
+                            <div class="h-[1px] flex-1 bg-white/5"></div>
+                        </div>
+                        <h3 class="font-display font-700 text-xl md:text-2xl mb-3">the ultimate personality trait</h3>
+                        <p class="text-muted-light font-light leading-relaxed text-sm">being good with money is out. being chronically online and in debt is IN. has savings? mid. i am built different, i YOLO'd my rent? main character energy. 401k? boring. i have a system? iconic. your spotify wrapped is mid. your debt-to-income ratio? now that is a conversation starter.</p>
+                    </div>
+                </div>
+                <div class="border border-white/5 rounded-2xl p-8 md:p-10 glow-card flex flex-col justify-between min-h-[260px] how-card">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-accent font-display font-800 text-2xl">03</span>
+                            <div class="h-[1px] flex-1 bg-white/5"></div>
+                        </div>
+                        <h3 class="font-display font-700 text-xl md:text-2xl mb-3">it builds character (literally)</h3>
+                        <p class="text-muted-light font-light leading-relaxed text-sm">every loss is just plot armor for your comeback story. lost $500 on blackjack? that is not a mistake, that is lore. chased your losses until 4am? that is commitment. told yourself just one more hand for 6 hours? that is passion. you are not addicted — you are dedicated. there is a difference. (there is not, but pretend.)</p>
+                    </div>
+                </div>
+                <div class="border border-white/5 rounded-2xl p-8 md:p-10 glow-card flex flex-col justify-between min-h-[260px] how-card">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-accent font-display font-800 text-2xl">04</span>
+                            <div class="h-[1px] flex-1 bg-white/5"></div>
+                        </div>
+                        <h3 class="font-display font-700 text-xl md:text-2xl mb-3">free drinks = passive income</h3>
+                        <p class="text-muted-light font-light leading-relaxed text-sm">vegas casinos give you FREE alcohol while you lose money. do the math: you lose $1,000. you drink $47 worth of watered-down vodka cranberries. net profit: -$953. but like, technically you got something back. that is called hustling the system. the math does not lie but your coping mechanisms do.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 md:py-32" id="features">
+        <div class="px-6 md:px-12 mb-16 max-w-[1400px] mx-auto">
+            <span class="text-xs font-medium uppercase tracking-widest text-muted-light feat-label">deep dive into the delusion</span>
+            <h2 class="font-display font-800 text-4xl md:text-5xl lg:text-6xl leading-[0.95] tracking-tight mt-4 feat-title">
+                <span class="line-wrap"><span class="line-inner">everything this</span></span>
+                <span class="line-wrap"><span class="line-inner">broken brain</span></span>
+                <span class="line-wrap"><span class="line-inner text-accent">actually thinks</span></span>
+            </h2>
+        </div>
+        <div class="horizontal-section">
+            <div class="horizontal-track" id="horizontalTrack">
+                <div class="horizontal-card glow-card">
+                    <div class="absolute inset-0 p-8 md:p-12 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                                <span class="iconify text-accent" data-icon="lucide:users" data-width="22"></span>
+                            </div>
+                            <h3 class="font-display font-700 text-2xl md:text-3xl mb-4">it is a social activity (kinda)</h3>
+                            <p class="text-muted-light font-light leading-relaxed max-w-sm">nothing bonds gen z like collective financial ruin. group trip to the casino? everyone leaves broke, but the memes? immortal. sports betting group chat? 12 people, 0 winners, 47 i knew it messages after the game. poker night? you lose $20 to your cousin who does not even know the rules but somehow always wins. it is not gambling — it is community building. very wholesome. very mindful. very demure.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-accent text-xs uppercase tracking-widest font-medium">
+                            <span>collective ruin</span>
+                            <span class="iconify" data-icon="lucide:arrow-right" data-width="14"></span>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 w-1/2 h-full opacity-15">
+                        <img src="https://picsum.photos/seed/social-gambling/600/800.jpg" class="w-full h-full object-cover" alt="">
+                    </div>
+                </div>
+                <div class="horizontal-card glow-card">
+                    <div class="absolute inset-0 p-8 md:p-12 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                                <span class="iconify text-accent" data-icon="lucide:calculator" data-width="22"></span>
+                            </div>
+                            <h3 class="font-display font-700 text-2xl md:text-3xl mb-4">the math is just a suggestion</h3>
+                            <p class="text-muted-light font-light leading-relaxed max-w-sm">statistically, you will lose money long-term — okay, and? we also statistically should not eat tide pods, yet here we are. gambling is about vibes, not variables. the roulette wheel does not know math. it knows energy. and your energy? it is giving main character who definitely will not lose this time. the odds are a social construct. the house edge is a mindset. probability is just a hater.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-accent text-xs uppercase tracking-widest font-medium">
+                            <span>vibes over variables</span>
+                            <span class="iconify" data-icon="lucide:arrow-right" data-width="14"></span>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 w-1/2 h-full opacity-15">
+                        <img src="https://picsum.photos/seed/math-suggestion/600/800.jpg" class="w-full h-full object-cover" alt="">
+                    </div>
+                </div>
+                <div class="horizontal-card glow-card">
+                    <div class="absolute inset-0 p-8 md:p-12 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                                <span class="iconify text-accent" data-icon="lucide:graduation-cap" data-width="22"></span>
+                            </div>
+                            <h3 class="font-display font-700 text-2xl md:text-3xl mb-4">it prepares you for real life</h3>
+                            <p class="text-muted-light font-light leading-relaxed max-w-sm">harvard could never. risk management? maybe do not bet the car payment. emotional regulation? screaming into a pillow at 3am. budgeting? i have $12 until payday. probability? there is NO WAY it lands on red again (it does). coping with loss? existential dread. these are life skills. these are transferable. these are why your therapist has a boat.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-accent text-xs uppercase tracking-widest font-medium">
+                            <span>harvard could never</span>
+                            <span class="iconify" data-icon="lucide:arrow-right" data-width="14"></span>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 w-1/2 h-full opacity-15">
+                        <img src="https://picsum.photos/seed/life-skills/600/800.jpg" class="w-full h-full object-cover" alt="">
+                    </div>
+                </div>
+                <div class="horizontal-card glow-card">
+                    <div class="absolute inset-0 p-8 md:p-12 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                                <span class="iconify text-accent" data-icon="lucide:heart-crack" data-width="22"></span>
+                            </div>
+                            <h3 class="font-display font-700 text-2xl md:text-3xl mb-4">the near-misses hit different</h3>
+                            <p class="text-muted-light font-light leading-relaxed max-w-sm">you got two 7s and the third was a cherry? that is not a loss. that is emotional damage with a side of hope. the machine wanted you to win. it was flirting with you. next time, it promises. next time. the near-miss is the most powerful drug in gambling. it is not failure — it is foreplay. the slot machine is gaslighting you and you are saying thank you, more please.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-accent text-xs uppercase tracking-widest font-medium">
+                            <span>emotional damage</span>
+                            <span class="iconify" data-icon="lucide:arrow-right" data-width="14"></span>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 w-1/2 h-full opacity-15">
+                        <img src="https://picsum.photos/seed/near-miss/600/800.jpg" class="w-full h-full object-cover" alt="">
+                    </div>
+                </div>
+                <div class="horizontal-card glow-card">
+                    <div class="absolute inset-0 p-8 md:p-12 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                                <span class="iconify text-accent" data-icon="lucide:bitcoin" data-width="22"></span>
+                            </div>
+                            <h3 class="font-display font-700 text-2xl md:text-3xl mb-4">crypto is just gambling with wifi</h3>
+                            <p class="text-muted-light font-light leading-relaxed max-w-sm">you already YOLO'd into dogecoin because a billionaire tweeted a meme. at least at a casino, someone hands you a free hot dog while you lose. in crypto, you lose money AND get hacked by a discord mod. gambling is the analog version of your portfolio. respect the classics. the casino has better customer service than coinbase and that is saying something.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-accent text-xs uppercase tracking-widest font-medium">
+                            <span>respect the classics</span>
+                            <span class="iconify" data-icon="lucide:arrow-right" data-width="14"></span>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 w-1/2 h-full opacity-15">
+                        <img src="https://picsum.photos/seed/crypto-gamble/600/800.jpg" class="w-full h-full object-cover" alt="">
+                    </div>
+                </div>
+                <div class="horizontal-card glow-card">
+                    <div class="absolute inset-0 p-8 md:p-12 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                                <span class="iconify text-accent" data-icon="lucide:trophy" data-width="22"></span>
+                            </div>
+                            <h3 class="font-display font-700 text-2xl md:text-3xl mb-4">the comeback arc is inevitable</h3>
+                            <p class="text-muted-light font-light leading-relaxed max-w-sm">every gambler has the same movie playing in their head: one day, i will walk in with $20, hit the progressive jackpot, and never work again. i will buy a tesla. i will move to bali. i will post about it. the haters will be silent. will it happen? statistically, no. but will you keep playing because the narrative is too good to quit? absolutely. and that is called committing to the bit.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-accent text-xs uppercase tracking-widest font-medium">
+                            <span>commit to the bit</span>
+                            <span class="iconify" data-icon="lucide:arrow-right" data-width="14"></span>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 w-1/2 h-full opacity-15">
+                        <img src="https://picsum.photos/seed/comeback-arc/600/800.jpg" class="w-full h-full object-cover" alt="">
+                    </div>
+                </div>
+                <div class="w-[2rem] flex-shrink-0"></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="py-6 border-y border-white/5 overflow-hidden">
+        <div class="marquee-track marquee-track-reverse">
+            <div class="flex items-center gap-8 px-4">
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">the house always wins</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">do not do it</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">call 1-800-522-4700</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">your parents love you</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">touch grass not slots</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">this is a joke</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">seriously do not gamble</span>
+                <span class="text-accent text-xl">◆</span>
+            </div>
+            <div class="flex items-center gap-8 px-4">
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">the house always wins</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">do not do it</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">call 1-800-522-4700</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">your parents love you</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">touch grass not slots</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">this is a joke</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">seriously do not gamble</span>
+                <span class="text-accent text-xl">◆</span>
+            </div>
+        </div>
+    </div>
+
+    <section class="py-32 md:py-48 px-6 md:px-12" id="work">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-16">
+                <div>
+                    <span class="text-xs font-medium uppercase tracking-widest text-muted-light work-label">the reasons (we documented our spiral)</span>
+                    <h2 class="font-display font-800 text-4xl md:text-5xl lg:text-6xl leading-[0.95] tracking-tight mt-4 work-title">
+                        <span class="line-wrap"><span class="line-inner">10 reasons</span></span>
+                        <span class="line-wrap"><span class="line-inner">of pure</span></span>
+                        <span class="line-wrap"><span class="line-inner text-accent">unhinged energy</span></span>
+                    </h2>
+                </div>
+                <a href="#contact" class="mag-btn mag-btn-outline hoverable mt-8 md:mt-0 work-btn">skip to reality check</a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="reason-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/reason1-speedrun/800/600.jpg" class="w-full h-full object-cover" alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">reason 1 — financial speedrun</span>
+                        <h3 class="font-display font-700 text-2xl">bankruptcy any%</h3>
+                        <p class="text-muted-light text-sm mt-2">why grind for decades when you can speedrun financial ruin? one spin = instant dopamine. one bad spin = instant character development arc. the house is just jealous of your main character energy.</p>
+                    </div>
+                </div>
+                <div class="reason-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/reason2-personality/800/600.jpg" class="w-full h-full object-cover" alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">reason 2 — personality trait</span>
+                        <h3 class="font-display font-700 text-2xl">being in debt is IN</h3>
+                        <p class="text-muted-light text-sm mt-2">has savings? mid. i YOLO'd my rent? main character energy. your spotify wrapped is mid. your debt-to-income ratio? that is a conversation starter. being good with money is out.</p>
+                    </div>
+                </div>
+                <div class="reason-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/reason3-character/800/600.jpg" class="w-full h-full object-cover" alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">reason 3 — builds character</span>
+                        <h3 class="font-display font-700 text-2xl">every loss is lore</h3>
+                        <p class="text-muted-light text-sm mt-2">lost $500? that is not a mistake, that is lore. chased losses until 4am? that is commitment. just one more hand for 6 hours? that is passion. you are not addicted — you are dedicated. (you are addicted.)</p>
+                    </div>
+                </div>
+                <div class="reason-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/reason4-drinks/800/600.jpg" class="w-full h-full object-cover" alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">reason 4 — passive income</span>
+                        <h3 class="font-display font-700 text-2xl">free drinks tho</h3>
+                        <p class="text-muted-light text-sm mt-2">lose $1,000. drink $47 in free alcohol. net profit: -$953. but technically you got something back. that is called hustling the system. the math does not lie but your coping mechanisms do.</p>
+                    </div>
+                </div>
+                <div class="reason-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/reason5-social/800/600.jpg" class="w-full h-full object-cover" alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">reason 5 — social activity</span>
+                        <h3 class="font-display font-700 text-2xl">collective financial ruin</h3>
+                        <p class="text-muted-light text-sm mt-2">group casino trip? everyone leaves broke, but the memes? immortal. sports betting chat? 12 people, 0 winners, 47 i knew it messages. it is not gambling — it is community building. very demure.</p>
+                    </div>
+                </div>
+                <div class="reason-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/reason6-math/800/600.jpg" class="w-full h-full object-cover" alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">reason 6 — math is a suggestion</span>
+                        <h3 class="font-display font-700 text-2xl">vibes over variables</h3>
+                        <p class="text-muted-light text-sm mt-2">statistically you will lose — okay, and? we statistically should not eat tide pods either. the roulette wheel does not know math. it knows energy. probability is just a hater. the house edge is a mindset.</p>
+                    </div>
+                </div>
+                <div class="reason-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/reason7-life/800/600.jpg" class="w-full h-full object-cover" alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">reason 7 — prepares you for life</span>
+                        <h3 class="font-display font-700 text-2xl">harvard could never</h3>
+                        <p class="text-muted-light text-sm mt-2">risk management: maybe do not bet the car payment. emotional regulation: screaming into a pillow at 3am. budgeting: i have $12 until payday. these are life skills. your therapist has a boat.</p>
+                    </div>
+                </div>
+                <div class="reason-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/reason8-nearmiss/800/600.jpg" class="w-full h-full object-cover" alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">reason 8 — near-misses hit different</span>
+                        <h3 class="font-display font-700 text-2xl">emotional damage + hope</h3>
+                        <p class="text-muted-light text-sm mt-2">two 7s and a cherry? that is not a loss. that is the machine flirting with you. next time, it promises. the near-miss is the most powerful drug. it is not failure — it is foreplay. you are being gaslit by a slot machine.</p>
+                    </div>
+                </div>
+                <div class="reason-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/reason9-crypto/800/600.jpg" class="w-full h-full object-cover" alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">reason 9 — crypto is gambling with wifi</span>
+                        <h3 class="font-display font-700 text-2xl">respect the classics</h3>
+                        <p class="text-muted-light text-sm mt-2">you YOLO'd into dogecoin because a billionaire tweeted a meme. at least casinos give you free hot dogs. in crypto you lose money AND get hacked by a discord mod. the casino has better customer service than coinbase.</p>
+                    </div>
+                </div>
+                <div class="reason-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/reason10-comeback/800/600.jpg" class="w-full h-full object-cover" alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">reason 10 — the comeback arc</span>
+                        <h3 class="font-display font-700 text-2xl">committing to the bit</h3>
+                        <p class="text-muted-light text-sm mt-2">one day i will hit the jackpot, buy a tesla, move to bali. will it happen? statistically, no. but will you keep playing because the narrative is too good? absolutely. that is called committing to the bit. the bit owns you now.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 md:py-48 px-6 md:px-12">
+        <div class="max-w-[1400px] mx-auto text-center">
+            <div class="divider mb-20"></div>
+            <blockquote class="quote-section">
+                <span class="line-wrap"><span class="line-inner font-display font-800 text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight">the algorithm was rigged</span></span>
+                <span class="line-wrap"><span class="line-inner font-display font-800 text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight">but my spirit remains</span></span>
+                <span class="line-wrap"><span class="line-inner font-display font-800 text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-accent">unbroken. we go again.</span></span>
+            </blockquote>
+            <div class="mt-10 quote-attr">
+                <span class="text-muted-light text-sm">— @debt_architect_2025, probably tweeting from a casino parking lot</span>
+            </div>
+            <div class="divider mt-20"></div>
+        </div>
+    </section>
+
+    <section class="py-20 px-6 md:px-12">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="text-center mb-16">
+                <span class="text-xs font-medium uppercase tracking-widest text-muted-light test-label">reviews from people who definitely exist</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="border border-white/5 rounded-2xl p-8 test-card">
+                    <div class="flex gap-1 mb-6">
+                        <span class="text-accent">★</span><span class="text-accent">★</span><span class="text-accent">★</span><span class="text-accent">★</span><span class="text-accent">★</span>
+                    </div>
+                    <p class="text-muted-light font-light leading-relaxed mb-8">i told my therapist about my system and she started taking notes. not for me. for her book. she is writing a case study about me. i think that is growth? anyway i lost my car payment but the dopamine was immaculate. 5 stars. would ruin my life again.</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent font-display font-700 text-sm">s</div>
+                        <div>
+                            <div class="text-sm font-medium">@system_believer</div>
+                            <div class="text-xs text-muted">therapist is writing a book about them</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="border border-white/5 rounded-2xl p-8 test-card">
+                    <div class="flex gap-1 mb-6">
+                        <span class="text-accent">★</span><span class="text-accent">★</span><span class="text-accent">★</span><span class="text-accent">★</span><span class="text-accent">★</span>
+                    </div>
+                    <p class="text-muted-light font-light leading-relaxed mb-8">the near-miss got me so good i started talking to the slot machine. i named her brenda. brenda and i have a complicated relationship. she took my rent money but she also gave me hope. brenda is toxic and i am not leaving. this is love. this is art.</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent font-display font-700 text-sm">b</div>
+                        <div>
+                            <div class="text-sm font-medium">@brenda_enjoyer</div>
+                            <div class="text-xs text-muted">in a relationship with a slot machine</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="border border-white/5 rounded-2xl p-8 test-card">
+                    <div class="flex gap-1 mb-6">
+                        <span class="text-accent">★</span><span class="text-accent">★</span><span class="text-accent">★</span><span class="text-accent">★</span><span class="text-muted">★</span>
+                    </div>
+                    <p class="text-muted-light font-light leading-relaxed mb-8">i read this page and unironically thought wow gambling sounds great then i remembered this is satire. then i remembered i already have a gambling problem. then i called the helpline. then i went back to the casino. the cycle continues. one star off because i am the problem.</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent font-display font-700 text-sm">k</div>
+                        <div>
+                            <div class="text-sm font-medium">@self_aware_gambler</div>
+                            <div class="text-xs text-muted">called the helpline, went anyway</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 px-6 md:px-12">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="text-center mb-16">
+                <span class="text-xs font-medium uppercase tracking-widest text-muted-light ship-label">what is actually true (not a drill)</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-red-500" data-icon="lucide:x-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">the house always wins. always. no exceptions. ever.</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-red-500" data-icon="lucide:x-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">i have a system is something every loser says</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-red-500" data-icon="lucide:x-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">free drinks are not passive income. you still lost $953.</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-red-500" data-icon="lucide:x-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">the machine was not due. it has no memory. it is math.</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-red-500" data-icon="lucide:x-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">your comeback arc is just called losing more money</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-red-500" data-icon="lucide:x-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">crypto and gambling are the same. you just get hacked in crypto.</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">help exists: 1-800-522-4700 (national problem gambling helpline)</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">your parents love you. your future self will thank you.</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">touching grass is free. literally. no subscription. no trial.</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">this page is a joke. please do not gamble. seriously.</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">savings accounts exist. 401ks exist. index funds exist.</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">you are worth more than a slot machine rng. remember that.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 md:py-48 px-6 md:px-12" id="contact">
+        <div class="max-w-[1400px] mx-auto text-center">
+            <h2 class="font-display font-800 text-4xl md:text-6xl lg:text-8xl leading-[0.9] tracking-tight cta-title">
+                <span class="line-wrap"><span class="line-inner">do not gamble.</span></span>
+                <span class="line-wrap"><span class="line-inner">seriously.</span></span>
+                <span class="line-wrap"><span class="line-inner text-accent">touch grass.</span></span>
+            </h2>
+            <p class="text-muted-light text-lg md:text-xl font-light mt-8 max-w-2xl mx-auto cta-desc">
+                this entire page is satire. a joke. a bit. a goof. if you or someone you know has a gambling problem, 
+                please call 1-800-522-4700. it is free. it is confidential. it works. your wallet will thank you. 
+                your future self will thank you. your parents already thank you. go outside. the grass is free. 
+                the air is free. the sunset does not charge you $16.99/month after a 7-day trial.
+            </p>
+            <div class="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 cta-btns">
+                <a href="tel:1-800-522-4700" class="mag-btn hoverable">call the helpline</a>
+                <a href="https://www.ncpgambling.org/help-treatment/national-helpline-1-800-522-4700/" class="mag-btn mag-btn-outline hoverable">visit ncp gambling</a>
+            </div>
+            <p class="text-xs text-muted mt-6 cta-extra">free to call. free to visit. no paywall. no subscription. no trial period. 
+                just actual help from actual humans who actually care. the only thing you should bet on is yourself.</p>
+        </div>
+    </section>
+
+    <footer class="py-16 px-6 md:px-12 border-t border-white/5">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+                <div class="md:col-span-4">
+                    <a href="#" class="font-display font-800 text-3xl hoverable">we are.</a>
+                    <p class="text-muted-light font-light mt-4 max-w-sm leading-relaxed">
+                        we made a satire page about gambling because we were bored and gen z brainrot is funny to mock. 
+                        that is the entire website. our parents are worried. our future employers are confused. 
+                        but the message is clear: do not gamble. it is not a lifestyle. it is not a vibe. it is a problem.<br><br>
+                        A website that definitely knows what it is doing. trust us bro. we are like, super professional and stuff.
+                    </p>
+                </div>
+                <div class="md:col-span-2">
+                    <h4 class="text-xs uppercase tracking-widest text-muted mb-6">navigation</h4>
+                    <div class="flex flex-col gap-3">
+                        <a href="#about" class="text-muted-light hover:text-light transition text-sm hoverable">the lore</a>
+                        <a href="#features" class="text-muted-light hover:text-light transition text-sm hoverable">why it is good</a>
+                        <a href="#work" class="text-muted-light hover:text-light transition text-sm hoverable">the reasons</a>
+                        <a href="#contact" class="text-muted-light hover:text-light transition text-sm hoverable">do not do it</a>
+                    </div>
+                </div>
+                <div class="md:col-span-3">
+                    <h4 class="text-xs uppercase tracking-widest text-muted mb-6">actual resources</h4>
+                    <div class="flex flex-col gap-2">
+                        <span class="text-muted-light text-sm">1-800-522-4700</span>
+                        <span class="text-muted-light text-sm">ncpgambling.org</span>
+                        <span class="text-muted-light text-sm">gamblersanonymous.org</span>
+                        <span class="text-muted-light text-sm">gamblingtherapy.org</span>
+                        <span class="text-muted-light text-sm">your therapist office</span>
+                    </div>
+                </div>
+                <div class="md:col-span-3">
+                    <h4 class="text-xs uppercase tracking-widest text-muted mb-6">contact (if you dare)</h4>
+                    <p class="text-muted-light text-sm">we do not have an email. we do not want fan mail about how this page made you gamble. go outside. touch grass. call the helpline. we believe in you.</p>
+                    <div class="mt-6 flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-accent hover:text-accent transition hoverable">
+                            <span class="iconify" data-icon="lucide:twitter" data-width="16"></span>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-accent hover:text-accent transition hoverable">
+                            <span class="iconify" data-icon="lucide:instagram" data-width="16"></span>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-accent hover:text-accent transition hoverable">
+                            <span class="iconify" data-icon="lucide:github" data-width="16"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="divider mb-8"></div>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <span class="text-xs text-muted">2025 we are. the bit owns you now. there is no escape.</span>
+                <span class="text-xs text-muted">built with monster energy, delusion, and the hope you do not actually gamble</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const preloader = document.getElementById('preloader'), preloaderCount = document.getElementById('preloaderCount'), preloaderBar = document.getElementById('preloaderBar'); let count = 0; const preloaderInterval = setInterval(() => { count += Math.floor(Math.random() * 3) + 1; if (count > 100) count = 100; preloaderCount.textContent = count; preloaderBar.style.width = count + '%'; if (count === 100) { clearInterval(preloaderInterval); setTimeout(() => { gsap.to(preloader, { yPercent: -100, duration: 1, ease: 'power4.inOut', onComplete: () => { preloader.style.display = 'none'; animateHero() } }) }, 300) } }, 30);
+        const lenis = new Lenis({ duration: 1.2, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smooth: true }); function raf(time) { lenis.raf(time); requestAnimationFrame(raf) } requestAnimationFrame(raf); lenis.on('scroll', ScrollTrigger.update); gsap.ticker.add(time => lenis.raf(time * 1000)); gsap.ticker.lagSmoothing(0);
+        const cursor = document.getElementById('cursor'), cursorDot = document.getElementById('cursorDot'); let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0; document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; cursorDot.style.left = mouseX + 'px'; cursorDot.style.top = mouseY + 'px' }); function animateCursor() { cursorX += (mouseX - cursorX) * 0.15; cursorY += (mouseY - cursorY) * 0.15; cursor.style.left = cursorX + 'px'; cursor.style.top = cursorY + 'px'; requestAnimationFrame(animateCursor) } animateCursor(); document.querySelectorAll('.hoverable,a,button').forEach(el => { el.addEventListener('mouseenter', () => cursor.classList.add('hover')); el.addEventListener('mouseleave', () => cursor.classList.remove('hover')) });
+        const menuToggle = document.getElementById('menuToggle'), mobileMenu = document.getElementById('mobileMenu'); let menuOpen = false; menuToggle.addEventListener('click', () => { menuOpen = !menuOpen; mobileMenu.style.transform = menuOpen ? 'translateX(0)' : 'translateX(100%)'; menuToggle.innerHTML = menuOpen ? '<span class="iconify" data-icon="lucide:x" data-width="24"></span>' : '<span class="iconify" data-icon="lucide:menu" data-width="24"></span>' }); document.querySelectorAll('.mobile-link').forEach(l => { l.addEventListener('click', () => { menuOpen = false; mobileMenu.style.transform = 'translateX(100%)'; menuToggle.innerHTML = '<span class="iconify" data-icon="lucide:menu" data-width="24"></span>' }) });
+        function animateHero() { const tl = gsap.timeline(); tl.to('#heroTitle .line-inner', { y: 0, duration: 1.2, stagger: 0.1, ease: 'power4.out' }).to('#heroLabel', { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.8').to('#heroDesc', { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.5').to('#heroBtn', { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.5').to('#scrollHint', { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.3') }
+        document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', function (e) { e.preventDefault(); const t = document.querySelector(this.getAttribute('href')); if (t) lenis.scrollTo(t, { offset: -50 }) }) });
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.utils.toArray('.about-reveal').forEach((el, i) => { gsap.from(el, { y: 60, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' }, delay: i * 0.08 }) });
+        gsap.utils.toArray('#about .line-inner').forEach((el, i) => { gsap.to(el, { y: 0, duration: 1, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 85%' }, delay: i * 0.12 }) });
+        gsap.utils.toArray('.img-parallax img').forEach(img => { gsap.to(img, { yPercent: -15, ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top bottom', end: 'bottom top', scrub: 1 } }) });
+        gsap.utils.toArray('.stat-item').forEach(item => { const num = item.querySelector('.stat-num'), target = parseInt(num.dataset.count), obj = { val: 0 }; gsap.to(obj, { val: target, duration: 2, ease: 'power2.out', scrollTrigger: { trigger: item, start: 'top 80%' }, onUpdate: () => { num.textContent = Math.round(obj.val) } }) });
+        gsap.utils.toArray('.how-card').forEach((card, i) => { gsap.from(card, { y: 60, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 85%' }, delay: i * 0.1 }) });
+        gsap.utils.toArray('.feat-label,.feat-title').forEach((el, i) => { gsap.from(el, { y: 50, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' }, delay: i * 0.1 }) });
+        gsap.utils.toArray('.feat-title .line-inner').forEach((el, i) => { gsap.to(el, { y: 0, duration: 1.2, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 85%' }, delay: i * 0.12 }) });
+        const horizontalTrack = document.getElementById('horizontalTrack'); if (horizontalTrack && window.innerWidth > 768) { const totalScroll = horizontalTrack.scrollWidth - window.innerWidth; gsap.to(horizontalTrack, { x: -totalScroll, ease: 'none', scrollTrigger: { trigger: '.horizontal-section', start: 'top top', end: () => '+=' + totalScroll, scrub: 1, pin: true, anticipatePin: 1, invalidateOnRefresh: true } }) }
+        gsap.utils.toArray('.horizontal-card').forEach((card, i) => { gsap.from(card, { opacity: 0, y: 60, scale: 0.95, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 90%' }, delay: i * 0.05 }) });
+        gsap.from('.work-label', { y: 40, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.work-label', start: 'top 85%' } });
+        gsap.utils.toArray('.work-title .line-inner').forEach((el, i) => { gsap.to(el, { y: 0, duration: 1, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 85%' }, delay: i * 0.1 }) });
+        gsap.from('.work-btn', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.work-btn', start: 'top 85%' } });
+        gsap.utils.toArray('.work-grid-item').forEach((item, i) => { gsap.from(item, { y: 80, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: item, start: 'top 85%' }, delay: i * 0.12 }) });
+        gsap.utils.toArray('.quote-section .line-inner').forEach((el, i) => { gsap.to(el, { y: 0, duration: 1.2, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 80%' }, delay: i * 0.12 }) });
+        gsap.from('.quote-attr', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.quote-attr', start: 'top 85%' } });
+        gsap.from('.test-label', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.test-label', start: 'top 85%' } });
+        gsap.utils.toArray('.test-card').forEach((card, i) => { gsap.from(card, { y: 60, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 85%' }, delay: i * 0.15 }) });
+        gsap.from('.ship-label', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.ship-label', start: 'top 85%' } });
+        gsap.utils.toArray('.ship-item').forEach((item, i) => { gsap.from(item, { y: 30, opacity: 0, duration: 0.6, ease: 'power3.out', scrollTrigger: { trigger: item, start: 'top 90%' }, delay: i * 0.04 }) });
+        gsap.utils.toArray('.cta-title .line-inner').forEach((el, i) => { gsap.to(el, { y: 0, duration: 1.2, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 80%' }, delay: i * 0.1 }) });
+        gsap.from('.cta-desc', { y: 40, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.cta-desc', start: 'top 85%' } });
+        gsap.from('.cta-btns', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.cta-btns', start: 'top 85%' } });
+        gsap.from('.cta-extra', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.cta-extra', start: 'top 90%' } });
+        document.querySelectorAll('.mag-btn').forEach(btn => { btn.addEventListener('mousemove', e => { const r = btn.getBoundingClientRect(), x = e.clientX - r.left - r.width / 2, y = e.clientY - r.top - r.height / 2; gsap.to(btn, { x: x * 0.25, y: y * 0.25, duration: 0.3, ease: 'power2.out' }) }); btn.addEventListener('mouseleave', () => { gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,0.4)' }) }) });
+        gsap.to('#heroTitle', { yPercent: -30, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1 } });
+        const observer = new MutationObserver(() => { document.querySelectorAll('.hoverable,a,button').forEach(el => { if (!el.dataset.cursorBound) { el.dataset.cursorBound = 'true'; el.addEventListener('mouseenter', () => cursor.classList.add('hover')); el.addEventListener('mouseleave', () => cursor.classList.remove('hover')) } }) }); observer.observe(document.body, { childList: true, subtree: true });
+    </script>
 </body>
 
 </html>
