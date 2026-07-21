@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>baseb. — trail-gard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0A0A0A',
+                        light: '#FAFAFA',
+                        accent: '#F45D22',
+                        'accent-light': '#FF7A45',
+                        muted: '#555555',
+                        'muted-light': '#888888',
+                    },
+                    fontFamily: {
+                        display: ['Syne', 'sans-serif'],
+                        body: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            background: #0A0A0A
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0A0A0A;
+            color: #FAFAFA;
+            overflow-x: hidden
+        }
+
+        ::selection {
+            background: #F45D22;
+            color: #0A0A0A
+        }
+
+        ::-webkit-scrollbar {
+            width: 0
+        }
+
+        .preloader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #0A0A0A;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center
+        }
+
+        .preloader-counter {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(4rem, 12vw, 10rem);
+            font-weight: 800;
+            line-height: 1;
+            color: #FAFAFA
+        }
+
+        .preloader-bar {
+            width: 200px;
+            height: 1px;
+            background: #222;
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+            border-radius: 1px
+        }
+
+        .preloader-bar-fill {
+            height: 100%;
+            background: #F45D22;
+            width: 0%;
+            border-radius: 1px
+        }
+
+        .preloader-sub {
+            font-size: .7rem;
+            letter-spacing: .25em;
+            text-transform: uppercase;
+            color: #444;
+            margin-top: 1.5rem;
+            font-family: 'Inter', sans-serif
+        }
+
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 1.5px solid rgba(250, 250, 250, .4);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width .3s, height .3s, border-color .3s, background .3s;
+            mix-blend-mode: difference
+        }
+
+        .cursor.hover {
+            width: 60px;
+            height: 60px;
+            background: rgba(244, 93, 34, .12);
+            border-color: #F45D22
+        }
+
+        .cursor-dot {
+            width: 4px;
+            height: 4px;
+            background: #FAFAFA;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference
+        }
+
+        .line-wrap {
+            overflow: hidden;
+            display: block
+        }
+
+        .line-inner {
+            display: block;
+            transform: translateY(110%)
+        }
+
+        .marquee-track {
+            display: flex;
+            width: max-content;
+            animation: marquee 25s linear infinite
+        }
+
+        .marquee-track-reverse {
+            animation-direction: reverse
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0)
+            }
+
+            100% {
+                transform: translateX(-50%)
+            }
+        }
+
+        .horizontal-section {
+            overflow: hidden
+        }
+
+        .horizontal-track {
+            display: flex;
+            width: max-content;
+            will-change: transform
+        }
+
+        .horizontal-card {
+            width: 55vw;
+            min-width: 460px;
+            height: 65vh;
+            min-height: 480px;
+            margin-right: 1.5rem;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, .06);
+            background: #111
+        }
+
+        .img-parallax {
+            overflow: hidden;
+            border-radius: 1rem
+        }
+
+        .img-parallax img {
+            transform: scale(1.25);
+            will-change: transform
+        }
+
+        .work-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            cursor: pointer
+        }
+
+        .work-item img {
+            transition: transform .8s cubic-bezier(.25, .46, .45, .94)
+        }
+
+        .work-item:hover img {
+            transform: scale(1.05)
+        }
+
+        .work-item .overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, .85) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity .5s
+        }
+
+        .work-item:hover .overlay {
+            opacity: 1
+        }
+
+        .work-item .item-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all .5s
+        }
+
+        .work-item:hover .item-info {
+            transform: translateY(0);
+            opacity: 1
+        }
+
+        nav a {
+            position: relative
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #F45D22;
+            transition: width .3s
+        }
+
+        nav a:hover::after {
+            width: 100%
+        }
+
+        .mag-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem 3rem;
+            background: #F45D22;
+            color: #0A0A0A;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: .8rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            border-radius: 100px;
+            border: none;
+            cursor: pointer;
+            transition: background .3s, transform .15s
+        }
+
+        .mag-btn:hover {
+            background: #FF7A45
+        }
+
+        .mag-btn-outline {
+            background: transparent;
+            border: 1px solid rgba(250, 250, 250, .2);
+            color: #FAFAFA
+        }
+
+        .mag-btn-outline:hover {
+            border-color: #F45D22;
+            color: #F45D22;
+            background: transparent
+        }
+
+        .grain {
+            position: fixed;
+            inset: 0;
+            z-index: 9990;
+            pointer-events: none;
+            opacity: .025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 200px 200px
+        }
+
+        .stat-num {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: clamp(2.5rem, 7vw, 5.5rem);
+            line-height: 1;
+            color: #F45D22
+        }
+
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, .08), transparent)
+        }
+
+        .glow-card {
+            position: relative;
+            overflow: hidden
+        }
+
+        .glow-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(244, 93, 34, .06) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity .5s;
+            pointer-events: none
+        }
+
+        .glow-card:hover::before {
+            opacity: 1
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 0.3rem 0.9rem;
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 100px;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #888
+        }
+
+        @media(max-width:768px) {
+            .horizontal-card {
+                width: 85vw;
+                min-width: unset;
+                height: 55vh
+            }
+
+            .cursor,
+            .cursor-dot {
+                display: none !important
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grain"></div>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+
+    <div class="preloader" id="preloader">
+        <div class="preloader-counter" id="preloaderCount">0</div>
+        <div class="preloader-bar">
+            <div class="preloader-bar-fill" id="preloaderBar"></div>
+        </div>
+        <div class="preloader-sub">spawning your pixel buddy</div>
+    </div>
+
+    <nav class="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-6 flex items-center justify-between mix-blend-difference"
+        id="navbar">
+        <a href="#" class="font-display font-800 text-lg tracking-tight hoverable">baseb.</a>
+        <div class="hidden md:flex items-center gap-10">
+            <a href="#about"
+                class="text-xs font-medium uppercase tracking-widest text-light/60 hover:text-light transition hoverable">the
+                lore</a>
+            <a href="#features"
+                class="text-xs font-medium uppercase tracking-widest text-light/60 hover:text-light transition hoverable">what
+                he does</a>
+            <a href="#work"
+                class="text-xs font-medium uppercase tracking-widest text-light/60 hover:text-light transition hoverable">build
+                diary</a>
+            <a href="#contact"
+                class="text-xs font-medium uppercase tracking-widest text-light/60 hover:text-light transition hoverable">download</a>
+        </div>
+        <button class="md:hidden text-light hoverable" id="menuToggle">
+            <span class="iconify" data-icon="lucide:menu" data-width="24"></span>
+        </button>
+    </nav>
+
+    <div class="fixed inset-0 z-40 bg-dark/98 backdrop-blur-md flex flex-col items-center justify-center gap-8 translate-x-full transition-transform duration-500"
+        id="mobileMenu">
+        <a href="#about" class="font-display text-3xl font-700 hoverable mobile-link">the lore</a>
+        <a href="#features" class="font-display text-3xl font-700 hoverable mobile-link">what he does</a>
+        <a href="#work" class="font-display text-3xl font-700 hoverable mobile-link">build diary</a>
+        <a href="#contact" class="font-display text-3xl font-700 hoverable mobile-link">download</a>
+    </div>
+
+    <section class="min-h-screen flex flex-col justify-center px-6 md:px-12 pt-32 pb-20 relative" id="hero">
+        <div class="max-w-[1400px] mx-auto w-full">
+            <div class="mb-8 flex items-center gap-4 flex-wrap">
+                <span class="text-xs font-medium uppercase tracking-widest text-muted-light opacity-0"
+                    id="heroLabel">windows desktop app — pixel buddy — free trial destroyer</span>
+            </div>
+            <h1 class="font-display font-800 leading-[0.9] tracking-tight" id="heroTitle">
+                <span class="line-wrap"><span class="line-inner text-[clamp(2.8rem,8vw,7.5rem)]">a tiny
+                        pixel</span></span>
+                <span class="line-wrap"><span class="line-inner text-[clamp(2.8rem,8vw,7.5rem)] text-accent">guy
+                        walks</span></span>
+                <span class="line-wrap"><span class="line-inner text-[clamp(2.8rem,8vw,7.5rem)]">around
+                        your</span></span>
+                <span class="line-wrap"><span class="line-inner text-[clamp(2.8rem,8vw,7.5rem)]">screen
+                        yelling</span></span>
+                <span class="line-wrap"><span class="line-inner text-[clamp(2.8rem,8vw,7.5rem)]">at you to
+                        cancel</span></span>
+            </h1>
+            <div class="mt-12 md:mt-16 flex flex-col md:flex-row md:items-end justify-between gap-8">
+                <p class="text-muted-light text-base md:text-lg font-light leading-relaxed max-w-md opacity-0"
+                    id="heroDesc">
+                    we made trail-gard because we were literally bored trail-gard is a pixel buddy that lives on your desktop and goes absolutely feral
+                    when a free trial is about to charge you. he walks, he blinks, he sleeps, he screams. he's the only
+                    reason you're not paying for canva pro right now.
+                </p>
+                <a href="#about" class="mag-btn hoverable opacity-0" id="heroBtn">hear the lore</a>
+            </div>
+        </div>
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-0"
+            id="scrollHint">
+            <span class="text-[10px] uppercase tracking-[.2em] text-muted">scroll to meet him bestie</span>
+            <div class="w-[1px] h-12 bg-gradient-to-b from-muted to-transparent relative overflow-hidden">
+                <div class="w-full h-4 bg-accent absolute top-0 animate-pulse"></div>
+            </div>
+        </div>
+    </section>
+    <div class="py-6 border-y border-white/5 overflow-hidden">
+        <div class="marquee-track">
+            <div class="flex items-center gap-8 px-4">
+                <span
+                    class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">trail-gard</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel that
+                    shi</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">pixel
+                    buddy</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">he's so
+                    babygirl</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">baseb.</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">no cap
+                    protection</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">free fr
+                    fr</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">touch grass not
+                    subscriptions</span>
+                <span class="text-accent text-xl">✦</span>
+            </div>
+            <div class="flex items-center gap-8 px-4">
+                <span
+                    class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">trail-gard</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel that
+                    shi</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">pixel
+                    buddy</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">he's so
+                    babygirl</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">baseb.</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">no cap
+                    protection</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">free fr
+                    fr</span>
+                <span class="text-accent text-xl">✦</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">touch grass not
+                    subscriptions</span>
+                <span class="text-accent text-xl">✦</span>
+            </div>
+        </div>
+    </div>
+
+    <section class="py-32 md:py-48 px-6 md:px-12" id="about">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
+                <div class="md:col-span-5">
+                    <span class="text-xs font-medium uppercase tracking-widest text-muted-light about-reveal">okay so
+                        like the lore is</span>
+                    <h2
+                        class="font-display font-800 text-4xl md:text-5xl lg:text-6xl leading-[0.95] tracking-tight mt-4">
+                        <span class="line-wrap about-reveal"><span class="line-inner">we made a</span></span>
+                        <span class="line-wrap about-reveal"><span class="line-inner">tiny guy who</span></span>
+                        <span class="line-wrap about-reveal"><span class="line-inner text-accent">hates
+                                when</span></span>
+                        <span class="line-wrap about-reveal"><span class="line-inner">you lose money</span></span>
+                    </h2>
+                </div>
+                <div class="md:col-span-1"></div>
+                <div class="md:col-span-6 flex flex-col justify-end">
+                    <p class="text-muted-light text-base md:text-lg font-light leading-relaxed mb-8 about-reveal">
+                        so basically we kept forgetting to cancel free trials and losing money like absolute clowns.
+                        netflix here, adobe there, canva pro that we used ONCE to make a birthday card. so we were like
+                        "what if a little pixel dude just... lived on our screen and yelled at us?" and then we actually
+                        built it. at 3am. fueled by monster energy and the sheer audacity to not learn from our
+                        mistakes.
+                    </p>
+                    <p class="text-muted-light text-base md:text-lg font-light leading-relaxed mb-8 about-reveal">
+                        he's drawn pixel by pixel on a canvas. 4x4 pixel scale. dark hair, peach skin, rose-colored
+                        shirt, little shoes. he walks around with a 2-frame animation like it's 1996 and he's PROUD of
+                        it. he blinks every 3.5 seconds. he has blush cheeks. he bobs up and down when idle. if you
+                        click him he does this little poof animation with particles scattering everywhere and then he's
+                        gone. you can bring him back though. he always comes back. he has no where else to go.
+                    </p>
+                    <p class="text-muted-light text-base md:text-lg font-light leading-relaxed mb-10 about-reveal">
+                        the best part? when a trial is chill his thought bubble says "all clean~" or "no leaks!" like a
+                        little guardian angel. but when shit gets real and you have 1 day left? bro's thought bubble
+                        goes "CANCEL IT NOW" "YOU'LL PAY" "DAY 6. WAKE UP." and windows toast notifications hit every 25
+                        seconds. your whole screen is just this tiny pixel guy having a full mental breakdown and
+                        honestly? valid.
+                    </p>
+                    <div class="img-parallax about-reveal h-[300px] md:h-[400px]">
+                        <img src="https://picsum.photos/seed/pixel-buddy-lore/800/600.jpg" alt="the buddy"
+                            class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 px-6 md:px-12">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="divider mb-20"></div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8">
+                <div class="stat-item">
+                    <div class="stat-num" data-count="13">0</div>
+                    <div class="text-xs uppercase tracking-widest text-muted mt-3">services with instant cancel links
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" data-count="25">0</div>
+                    <div class="text-xs uppercase tracking-widest text-muted mt-3">seconds between each scream</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" data-count="0">0</div>
+                    <div class="text-xs uppercase tracking-widest text-muted mt-3">servers. accounts. paywalls.</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" data-count="62">0</div>
+                    <div class="text-xs uppercase tracking-widest text-muted mt-3">days before we even mention money
+                    </div>
+                </div>
+            </div>
+            <div class="divider mt-20"></div>
+        </div>
+    </section>
+
+    <section class="py-20 px-6 md:px-12">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div
+                    class="border border-white/5 rounded-2xl p-8 md:p-10 glow-card flex flex-col justify-between min-h-[260px] how-card">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-accent font-display font-800 text-2xl">01</span>
+                            <div class="h-[1px] flex-1 bg-white/5"></div>
+                        </div>
+                        <h3 class="font-display font-700 text-xl md:text-2xl mb-3">add your trial in 4 seconds</h3>
+                        <p class="text-muted-light font-light leading-relaxed text-sm">service name. how many days. how
+                            much they'll charge you. start date. that's it. no sign up. no email. no "create an account
+                            to continue." literally just type and hit add. the buddy handles the rest.</p>
+                    </div>
+                </div>
+                <div
+                    class="border border-white/5 rounded-2xl p-8 md:p-10 glow-card flex flex-col justify-between min-h-[260px] how-card">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-accent font-display font-800 text-2xl">02</span>
+                            <div class="h-[1px] flex-1 bg-white/5"></div>
+                        </div>
+                        <h3 class="font-display font-700 text-xl md:text-2xl mb-3">buddy starts stalking your trials
+                        </h3>
+                        <p class="text-muted-light font-light leading-relaxed text-sm">he reads the data every 8
+                            seconds. EIGHT. he's checking more often than you check your phone. green means safe, yellow
+                            means "hey bestie check this," red means "IF YOU DON'T CANCEL IN 24 HOURS I WILL PERSONALLY
+                            HAUNT YOUR DREAMS."</p>
+                    </div>
+                </div>
+                <div
+                    class="border border-white/5 rounded-2xl p-8 md:p-10 glow-card flex flex-col justify-between min-h-[260px] how-card">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-accent font-display font-800 text-2xl">03</span>
+                            <div class="h-[1px] flex-1 bg-white/5"></div>
+                        </div>
+                        <h3 class="font-display font-700 text-xl md:text-2xl mb-3">he screams. you click cancel. done.
+                        </h3>
+                        <p class="text-muted-light font-light leading-relaxed text-sm">when danger hits, windows toast
+                            notifications go BRRR every 25 seconds. the cancel button on the card auto-detects if it's
+                            netflix, spotify, adobe, or 10 other services and opens the EXACT cancel page. one click.
+                            you're free. the buddy goes back to sleep.</p>
+                    </div>
+                </div>
+                <div
+                    class="border border-white/5 rounded-2xl p-8 md:p-10 glow-card flex flex-col justify-between min-h-[260px] how-card">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-accent font-display font-800 text-2xl">04</span>
+                            <div class="h-[1px] flex-1 bg-white/5"></div>
+                        </div>
+                        <h3 class="font-display font-700 text-xl md:text-2xl mb-3">2 months free. then maybe a Donate us
+                            for Gambling.</h3>
+                        <p class="text-muted-light font-light leading-relaxed text-sm">after 62 days a tiny donation
+                            popup shows up with a UPI QR. not a paywall. not blocking anything. the app works fully
+                            behind it. hit "skip forever" and we literally set the next popup to the year 2035. we're
+                            not your dad. we just want the buddy to eat.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="py-20 md:py-32" id="features">
+        <div class="px-6 md:px-12 mb-16 max-w-[1400px] mx-auto">
+            <span class="text-xs font-medium uppercase tracking-widest text-muted-light feat-label">deep dive into the
+                buddy's brain</span>
+            <h2
+                class="font-display font-800 text-4xl md:text-5xl lg:text-6xl leading-[0.95] tracking-tight mt-4 feat-title">
+                <span class="line-wrap"><span class="line-inner">everything this</span></span>
+                <span class="line-wrap"><span class="line-inner">little guy</span></span>
+                <span class="line-wrap"><span class="line-inner text-accent">actually does</span></span>
+            </h2>
+        </div>
+        <div class="horizontal-section">
+            <div class="horizontal-track" id="horizontalTrack">
+                <div class="horizontal-card glow-card">
+                    <div class="absolute inset-0 p-8 md:p-12 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                                <span class="iconify text-accent" data-icon="lucide:footprints" data-width="22"></span>
+                            </div>
+                            <h3 class="font-display font-700 text-2xl md:text-3xl mb-4">he walks. he vibes. he lives
+                                rent free.</h3>
+                            <p class="text-muted-light font-light leading-relaxed max-w-sm">a transparent always-on-top
+                                window. 120x115 pixels of pure chaos. he drifts around your screen with this organic
+                                sine-wave motion, bounces off edges like a dvd screensaver but with more personality.
+                                2-frame walk cycle. arms and legs alternating. he's giving 1996 gameboy energy and we
+                                love that for him.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-accent text-xs uppercase tracking-widest font-medium">
+                            <span>watch him stroll</span>
+                            <span class="iconify" data-icon="lucide:arrow-right" data-width="14"></span>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 w-1/2 h-full opacity-15">
+                        <img src="https://picsum.photos/seed/walk-cycle/600/800.jpg" class="w-full h-full object-cover"
+                            alt="">
+                    </div>
+                </div>
+                <div class="horizontal-card glow-card">
+                    <div class="absolute inset-0 p-8 md:p-12 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                                <span class="iconify text-accent" data-icon="lucide:bell-ring" data-width="22"></span>
+                            </div>
+                            <h3 class="font-display font-700 text-2xl md:text-3xl mb-4">goes feral when trials expire
+                            </h3>
+                            <p class="text-muted-light font-light leading-relaxed max-w-sm">1 day left? buddy enters his
+                                villain arc. windows toasts every 25 seconds: "NETFLIX — 1 DAY LEFT. CANCEL NOW or lose
+                                $16." thought bubble rotates through "CANCEL IT NOW" "YOU'LL PAY" "DAY 6. WAKE UP."
+                                "CLICK THE LINK." he does NOT care that you're in a zoom call. he does NOT care that
+                                it's 2am. cancel the trial.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-accent text-xs uppercase tracking-widest font-medium">
+                            <span>the screaming</span>
+                            <span class="iconify" data-icon="lucide:arrow-right" data-width="14"></span>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 w-1/2 h-full opacity-15">
+                        <img src="https://picsum.photos/seed/feral-mode/600/800.jpg" class="w-full h-full object-cover"
+                            alt="">
+                    </div>
+                </div>
+                <div class="horizontal-card glow-card">
+                    <div class="absolute inset-0 p-8 md:p-12 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                                <span class="iconify text-accent" data-icon="lucide:link" data-width="22"></span>
+                            </div>
+                            <h3 class="font-display font-700 text-2xl md:text-3xl mb-4">one-click cancel for 13 services
+                            </h3>
+                            <p class="text-muted-light font-light leading-relaxed max-w-sm">netflix. spotify. adobe.
+                                youtube premium. figma. notion. canva. hulu. disney+. hbo. apple. amazon. skillshare.
+                                the buddy auto-detects the service name and the cancel button opens the EXACT cancel
+                                page. no googling "how to cancel adobe" at 11:59pm in a panic. we already did that part
+                                for you. you're welcome.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-accent text-xs uppercase tracking-widest font-medium">
+                            <span>13 services mapped</span>
+                            <span class="iconify" data-icon="lucide:arrow-right" data-width="14"></span>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 w-1/2 h-full opacity-15">
+                        <img src="https://picsum.photos/seed/cancel-mapped/600/800.jpg"
+                            class="w-full h-full object-cover" alt="">
+                    </div>
+                </div>
+                <div class="horizontal-card glow-card">
+                    <div class="absolute inset-0 p-8 md:p-12 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                                <span class="iconify text-accent" data-icon="lucide:moon" data-width="22"></span>
+                            </div>
+                            <h3 class="font-display font-700 text-2xl md:text-3xl mb-4">falls asleep. has dreams. wakes
+                                up screaming.</h3>
+                            <p class="text-muted-light font-light leading-relaxed max-w-sm">15 minutes of no danger?
+                                buddy's out. eyes close. little "zzz" particles float up from his head. it's adorable.
+                                thought bubble says nothing. pure peace. but the SECOND a trial hits danger zone? eyes
+                                SNAP open. no groggy transition. no snooze. this man is AWAKE and he is MAD.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-accent text-xs uppercase tracking-widest font-medium">
+                            <span>sleep & rage cycle</span>
+                            <span class="iconify" data-icon="lucide:arrow-right" data-width="14"></span>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 w-1/2 h-full opacity-15">
+                        <img src="https://picsum.photos/seed/sleep-rage/600/800.jpg" class="w-full h-full object-cover"
+                            alt="">
+                    </div>
+                </div>
+                <div class="horizontal-card glow-card">
+                    <div class="absolute inset-0 p-8 md:p-12 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                                <span class="iconify text-accent" data-icon="lucide:sparkles" data-width="22"></span>
+                            </div>
+                            <h3 class="font-display font-700 text-2xl md:text-3xl mb-4">poof. particles. gone. (click
+                                him)</h3>
+                            <p class="text-muted-light font-light leading-relaxed max-w-sm">click the buddy and he
+                                explodes into an expanding ring, scattered pixels, and a center flash. it's so
+                                satisfying that people literally just open and close him for fun. there's a ghost button
+                                in the dashboard to re-summon him. he always comes back. he has attachment issues and we
+                                respect that.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-accent text-xs uppercase tracking-widest font-medium">
+                            <span>the poof</span>
+                            <span class="iconify" data-icon="lucide:arrow-right" data-width="14"></span>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 w-1/2 h-full opacity-15">
+                        <img src="https://picsum.photos/seed/poof-particles/600/800.jpg"
+                            class="w-full h-full object-cover" alt="">
+                    </div>
+                </div>
+                <div class="w-[2rem] flex-shrink-0"></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="py-6 border-y border-white/5 overflow-hidden">
+        <div class="marquee-track marquee-track-reverse">
+            <div class="flex items-center gap-8 px-4">
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel
+                    netflix</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel
+                    spotify</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel
+                    adobe</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel
+                    canva</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel
+                    disney+</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel
+                    hbo</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel your
+                    subscription to getting scammed</span>
+                <span class="text-accent text-xl">◆</span>
+            </div>
+            <div class="flex items-center gap-8 px-4">
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel
+                    netflix</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel
+                    spotify</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel
+                    adobe</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel
+                    canva</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel
+                    disney+</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel
+                    hbo</span>
+                <span class="text-accent text-xl">◆</span>
+                <span class="font-display font-700 text-2xl md:text-4xl text-white/10 whitespace-nowrap">cancel your
+                    subscription to getting scammed</span>
+                <span class="text-accent text-xl">◆</span>
+            </div>
+        </div>
+    </div>
+
+    <section class="py-32 md:py-48 px-6 md:px-12" id="work">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-16">
+                <div>
+                    <span class="text-xs font-medium uppercase tracking-widest text-muted-light work-label">the build
+                        diary (we documented our spiral)</span>
+                    <h2
+                        class="font-display font-800 text-4xl md:text-5xl lg:text-6xl leading-[0.95] tracking-tight mt-4 work-title">
+                        <span class="line-wrap"><span class="line-inner">6 iterations</span></span>
+                        <span class="line-wrap"><span class="line-inner">of pure</span></span>
+                        <span class="line-wrap"><span class="line-inner text-accent">unhinged energy</span></span>
+                    </h2>
+                </div>
+                <a href="#contact" class="mag-btn mag-btn-outline hoverable mt-8 md:mt-0 work-btn">skip to download</a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="work-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/iter1-web/800/600.jpg" class="w-full h-full object-cover"
+                        alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">iteration 1 — web prototype</span>
+                        <h3 class="font-display font-700 text-2xl">the css div era</h3>
+                        <p class="text-muted-light text-sm mt-2">buddy was just a div with a face. no canvas. no
+                            electron. just vibes and dreams. he couldn't even walk he just sat there judging us.</p>
+                    </div>
+                </div>
+                <div class="work-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/iter2-electron/800/600.jpg" class="w-full h-full object-cover"
+                        alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">iteration 2 — electron app</span>
+                        <h3 class="font-display font-700 text-2xl">he learned to walk</h3>
+                        <p class="text-muted-light text-sm mt-2">split into two windows. buddy got his own transparent
+                            always-on-top window. drew him pixel by pixel on canvas. he took his first steps and we
+                            literally cheered.</p>
+                    </div>
+                </div>
+                <div class="work-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/iter3-puppeteer/800/600.jpg" class="w-full h-full object-cover"
+                        alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">iteration 3 — the auto-cancel era</span>
+                        <h3 class="font-display font-700 text-2xl">we got too ambitious ngl</h3>
+                        <p class="text-muted-light text-sm mt-2">added puppeteer-core to auto-cancel. encrypted
+                            credentials. screenshot proof. then we realized CAPTCHAs exist and the whole thing was a war
+                            crime waiting to happen.</p>
+                    </div>
+                </div>
+                <div class="work-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/iter4-reality/800/600.jpg" class="w-full h-full object-cover"
+                        alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">iteration 4 — reality check</span>
+                        <h3 class="font-display font-700 text-2xl">googled competitors. cried.</h3>
+                        <p class="text-muted-light text-sm mt-2">rocket money. donotpay. trim. bobby. all doing the same
+                            thing. realized the buddy IS the product not the automation. pivoted harder than a tiktok
+                            trend.</p>
+                    </div>
+                </div>
+                <div class="work-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/iter5-stripe/800/600.jpg" class="w-full h-full object-cover"
+                        alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">iteration 5 — the $0.69/mo mistake</span>
+                        <h3 class="font-display font-700 text-2xl">we tried to charge money lol</h3>
+                        <p class="text-muted-light text-sm mt-2">added stripe. added a server. added webhooks. added
+                            device IDs. added a paywall. then realized we're charging people money to save money and
+                            that's just a pyramid scheme with extra steps.</p>
+                    </div>
+                </div>
+                <div class="work-item h-[400px] md:h-[500px] work-grid-item">
+                    <img src="https://picsum.photos/seed/iter6-final/800/600.jpg" class="w-full h-full object-cover"
+                        alt="">
+                    <div class="overlay"></div>
+                    <div class="item-info">
+                        <span class="pill mb-3">iteration 6 — current. finally. we think.</span>
+                        <h3 class="font-display font-700 text-2xl">nuked everything. kept the buddy.</h3>
+                        <p class="text-muted-light text-sm mt-2">removed stripe. removed the server. removed accounts.
+                            removed the paywall. 5 files. no dependencies except electron. free for 2 months then
+                            optional UPI donation. this is the version. probably. unless we spiral again.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="py-32 md:py-48 px-6 md:px-12">
+        <div class="max-w-[1400px] mx-auto text-center">
+            <div class="divider mb-20"></div>
+            <blockquote class="quote-section">
+                <span class="line-wrap"><span
+                        class="line-inner font-display font-800 text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight">"i
+                        was about to get charged</span></span>
+                <span class="line-wrap"><span
+                        class="line-inner font-display font-800 text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight">$660
+                        for adobe and a tiny</span></span>
+                <span class="line-wrap"><span
+                        class="line-inner font-display font-800 text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-accent">pixel
+                        man saved my life fr"</span></span>
+            </blockquote>
+            <div class="mt-10 quote-attr">
+                <span class="text-muted-light text-sm">— @adobe_survivor_2025, probably crying tears of joy</span>
+            </div>
+            <div class="divider mt-20"></div>
+        </div>
+    </section>
+
+    <section class="py-20 px-6 md:px-12">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="text-center mb-16">
+                <span class="text-xs font-medium uppercase tracking-widest text-muted-light test-label">reviews from
+                    people who stopped paying for things</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="border border-white/5 rounded-2xl p-8 test-card">
+                    <div class="flex gap-1 mb-6">
+                        <span class="text-accent">★</span><span class="text-accent">★</span><span
+                            class="text-accent">★</span><span class="text-accent">★</span><span
+                            class="text-accent">★</span>
+                    </div>
+                    <p class="text-muted-light font-light leading-relaxed mb-8">"the buddy started screaming at me
+                        during a discord call and my friends were like 'what is that' and i had to explain that a tiny
+                        pixel man on my screen is my financial advisor now. they downloaded it too. we have a group chat
+                        called 'buddy watchers' where we post screenshots of him sleeping."</p>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent font-display font-700 text-sm">
+                            s</div>
+                        <div>
+                            <div class="text-sm font-medium">@sleepy_buddy_enjoyer</div>
+                            <div class="text-xs text-muted">founded a buddy watch group chat</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="border border-white/5 rounded-2xl p-8 test-card">
+                    <div class="flex gap-1 mb-6">
+                        <span class="text-accent">★</span><span class="text-accent">★</span><span
+                            class="text-accent">★</span><span class="text-accent">★</span><span
+                            class="text-accent">★</span>
+                    </div>
+                    <p class="text-muted-light font-light leading-relaxed mb-8">"i had 9 free trials running
+                        simultaneously like some kind of feral subscription goblin. the buddy looked at my screen and i
+                        swear his thought bubble said 'what is wrong with you.' anyway i cancelled 6 of them and saved
+                        like $200/month. my bank account sent him a thank you card."</p>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent font-display font-700 text-sm">
+                            d</div>
+                        <div>
+                            <div class="text-sm font-medium">@subscription_goblin</div>
+                            <div class="text-xs text-muted">9 trials. 9. NINE.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="border border-white/5 rounded-2xl p-8 test-card">
+                    <div class="flex gap-1 mb-6">
+                        <span class="text-accent">★</span><span class="text-accent">★</span><span
+                            class="text-accent">★</span><span class="text-accent">★</span><span
+                            class="text-muted">★</span>
+                    </div>
+                    <p class="text-muted-light font-light leading-relaxed mb-8">"the poof animation when you click him
+                        is so good that i've spent more time clicking him on and off than actually managing my trials.
+                        my trials expired. i got charged. the buddy was screaming and i was too busy making him go poof.
+                        one star off because i am the problem."</p>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent font-display font-700 text-sm">
+                            k</div>
+                        <div>
+                            <div class="text-sm font-medium">@poof_addict</div>
+                            <div class="text-xs text-muted">hasn't cancelled a single thing</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 px-6 md:px-12">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="text-center mb-16">
+                <span class="text-xs font-medium uppercase tracking-widest text-muted-light ship-label">what's actually
+                    ship-ready (not a drill)</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">pixel buddy walks around your screen</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">moods change with trial urgency</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">falls asleep when idle (zzz particles)</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">wakes up INSTANTLY if danger hits</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">poof animation on click (satisfying af)</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">draggable to reposition anywhere</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">color-coded urgency (green/yellow/red/gray)</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">progress bars on every trial card</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">windows toast notifications (aggressive)</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">one-click cancel link for 13 services</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">2 months free then optional UPI donation</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">skip forever = sets next popup to 2035</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">data persists across restarts (local json)</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">no server. no account. no paywall.</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">builds to .exe (ships as installer)</span>
+                </div>
+                <div class="flex items-center gap-4 py-4 px-6 border border-white/5 rounded-xl ship-item">
+                    <span class="iconify text-green-500" data-icon="lucide:check-circle" data-width="20"></span>
+                    <span class="text-sm text-muted-light">ghost button to re-summon dismissed buddy</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 md:py-48 px-6 md:px-12" id="contact">
+        <div class="max-w-[1400px] mx-auto text-center">
+            <h2 class="font-display font-800 text-4xl md:text-6xl lg:text-8xl leading-[0.9] tracking-tight cta-title">
+                <span class="line-wrap"><span class="line-inner">stop paying</span></span>
+                <span class="line-wrap"><span class="line-inner">for shit you</span></span>
+                <span class="line-wrap"><span class="line-inner text-accent">used once.</span></span>
+            </h2>
+            <p class="text-muted-light text-lg md:text-xl font-light mt-8 max-w-2xl mx-auto cta-desc">windows only. 5
+                files. no server. no account. no paywall. no stripe. no firebase. no supabase. no cloud. no nothing.
+                just a pixel guy on your screen who cares about your wallet more than you do. installs in 10 seconds.
+                buddy appears immediately. starts walking. starts judging.</p>
+            <div class="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 cta-btns">
+                <a href="https://drive.google.com/file/d/1UzY1Yzk5w-SYrqfHVP3thSM_WYbq7jkO/view?usp=sharing" class="mag-btn hoverable">download trail-gard .exe</a>
+                <a href="no_we_are.html" class="mag-btn mag-btn-outline hoverable">see the github (we're not embarrassed)</a>
+            </div>
+            <p class="text-xs text-muted mt-6 cta-extra">free for 62 days. then a little UPI QR appears. skip it to 2035
+                if you want. we literally cannot stop you. the buddy will be sad though. just saying.</p>
+        </div>
+    </section>
+
+    <footer class="py-16 px-6 md:px-12 border-t border-white/5">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+                <div class="md:col-span-4">
+                    <a href="#" class="font-display font-800 text-3xl hoverable">baseb.</a>
+                    <p class="text-muted-light font-light mt-4 max-w-sm leading-relaxed">we made a pixel buddy that
+                        screams at you to cancel free trials. that's the entire company. our investors are confused. our
+                        parents are worried. but the buddy works and honestly that's more than most startups can say.<br><br>
+
+                        A company that definitely knows what it's doing. trust us bro. we're like, super professional and stuff.
+                    </p>
+                </div>
+                <div class="md:col-span-2">
+                    <h4 class="text-xs uppercase tracking-widest text-muted mb-6">navigation</h4>
+                    <div class="flex flex-col gap-3">
+                        <a href="#about" class="text-muted-light hover:text-light transition text-sm hoverable">the
+                            lore</a>
+                        <a href="#features" class="text-muted-light hover:text-light transition text-sm hoverable">what
+                            he does</a>
+                        <a href="#work" class="text-muted-light hover:text-light transition text-sm hoverable">build
+                            diary</a>
+                        <a href="#contact"
+                            class="text-muted-light hover:text-light transition text-sm hoverable">download</a>
+                    </div>
+                </div>
+                <div class="md:col-span-3">
+                    <h4 class="text-xs uppercase tracking-widest text-muted mb-6">the 13 services he can cancel</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <span class="text-muted-light text-sm">netflix</span>
+                        <span class="text-muted-light text-sm">spotify</span>
+                        <span class="text-muted-light text-sm">adobe</span>
+                        <span class="text-muted-light text-sm">youtube</span>
+                        <span class="text-muted-light text-sm">figma</span>
+                        <span class="text-muted-light text-sm">notion</span>
+                        <span class="text-muted-light text-sm">canva</span>
+                        <span class="text-muted-light text-sm">hulu</span>
+                        <span class="text-muted-light text-sm">disney+</span>
+                        <span class="text-muted-light text-sm">hbo</span>
+                        <span class="text-muted-light text-sm">apple</span>
+                        <span class="text-muted-light text-sm">amazon</span>
+                        <span class="text-muted-light text-sm">skillshare</span>
+                    </div>
+                </div>
+                <div class="md:col-span-3">
+                    <h4 class="text-xs uppercase tracking-widest text-muted mb-6">contact (if you dare)</h4>
+                    <a href="mailto:technova.hub.com@gmail.com"
+                        class="text-muted-light hover:text-accent transition text-sm hoverable">technova.hub.com@gmail.com</a>
+                    <p class="text-muted text-xs mt-2">we actually read these. mostly.</p>
+                    <div class="mt-6 flex gap-4">
+                        <a href="#"
+                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-accent hover:text-accent transition hoverable">
+                            <span class="iconify" data-icon="lucide:twitter" data-width="16"></span>
+                        </a>
+                        <a href="https://www.reddit.com/r/whybaseb/"
+                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-accent hover:text-accent transition hoverable">
+                            <span class="iconify" data-icon="lucide:bot-message-square" data-width="16">(we get bullied here)</span>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-accent hover:text-accent transition hoverable">
+                            <span class="iconify" data-icon="lucide:instagram" data-width="16"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="divider mb-8"></div>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <span class="text-xs text-muted">© 2025 baseb. the buddy owns you now. there is no escape.</span>
+                <span class="text-xs text-muted">built with monster energy, delusion, and free trial money we actually
+                    saved this time</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const preloader = document.getElementById('preloader'), preloaderCount = document.getElementById('preloaderCount'), preloaderBar = document.getElementById('preloaderBar'); let count = 0; const preloaderInterval = setInterval(() => { count += Math.floor(Math.random() * 3) + 1; if (count > 100) count = 100; preloaderCount.textContent = count; preloaderBar.style.width = count + '%'; if (count === 100) { clearInterval(preloaderInterval); setTimeout(() => { gsap.to(preloader, { yPercent: -100, duration: 1, ease: 'power4.inOut', onComplete: () => { preloader.style.display = 'none'; animateHero() } }) }, 300) } }, 30);
+        const lenis = new Lenis({ duration: 1.2, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smooth: true }); function raf(time) { lenis.raf(time); requestAnimationFrame(raf) } requestAnimationFrame(raf); lenis.on('scroll', ScrollTrigger.update); gsap.ticker.add(time => lenis.raf(time * 1000)); gsap.ticker.lagSmoothing(0);
+        const cursor = document.getElementById('cursor'), cursorDot = document.getElementById('cursorDot'); let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0; document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; cursorDot.style.left = mouseX + 'px'; cursorDot.style.top = mouseY + 'px' }); function animateCursor() { cursorX += (mouseX - cursorX) * 0.15; cursorY += (mouseY - cursorY) * 0.15; cursor.style.left = cursorX + 'px'; cursor.style.top = cursorY + 'px'; requestAnimationFrame(animateCursor) } animateCursor(); document.querySelectorAll('.hoverable,a,button').forEach(el => { el.addEventListener('mouseenter', () => cursor.classList.add('hover')); el.addEventListener('mouseleave', () => cursor.classList.remove('hover')) });
+        const menuToggle = document.getElementById('menuToggle'), mobileMenu = document.getElementById('mobileMenu'); let menuOpen = false; menuToggle.addEventListener('click', () => { menuOpen = !menuOpen; mobileMenu.style.transform = menuOpen ? 'translateX(0)' : 'translateX(100%)'; menuToggle.innerHTML = menuOpen ? '<span class="iconify" data-icon="lucide:x" data-width="24"></span>' : '<span class="iconify" data-icon="lucide:menu" data-width="24"></span>' }); document.querySelectorAll('.mobile-link').forEach(l => { l.addEventListener('click', () => { menuOpen = false; mobileMenu.style.transform = 'translateX(100%)'; menuToggle.innerHTML = '<span class="iconify" data-icon="lucide:menu" data-width="24"></span>' }) });
+        function animateHero() { const tl = gsap.timeline(); tl.to('#heroTitle .line-inner', { y: 0, duration: 1.2, stagger: 0.1, ease: 'power4.out' }).to('#heroLabel', { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.8').to('#heroDesc', { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.5').to('#heroBtn', { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.5').to('#scrollHint', { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.3') }
+        document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', function (e) { e.preventDefault(); const t = document.querySelector(this.getAttribute('href')); if (t) lenis.scrollTo(t, { offset: -50 }) }) });
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.utils.toArray('.about-reveal').forEach((el, i) => { gsap.from(el, { y: 60, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' }, delay: i * 0.08 }) });
+        gsap.utils.toArray('#about .line-inner').forEach((el, i) => { gsap.to(el, { y: 0, duration: 1, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 85%' }, delay: i * 0.12 }) });
+        gsap.utils.toArray('.img-parallax img').forEach(img => { gsap.to(img, { yPercent: -15, ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top bottom', end: 'bottom top', scrub: 1 } }) });
+        gsap.utils.toArray('.stat-item').forEach(item => { const num = item.querySelector('.stat-num'), target = parseInt(num.dataset.count), obj = { val: 0 }; gsap.to(obj, { val: target, duration: 2, ease: 'power2.out', scrollTrigger: { trigger: item, start: 'top 80%' }, onUpdate: () => { num.textContent = Math.round(obj.val) } }) });
+        gsap.utils.toArray('.how-card').forEach((card, i) => { gsap.from(card, { y: 60, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 85%' }, delay: i * 0.1 }) });
+        gsap.utils.toArray('.feat-label,.feat-title').forEach((el, i) => { gsap.from(el, { y: 50, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' }, delay: i * 0.1 }) });
+        gsap.utils.toArray('.feat-title .line-inner').forEach((el, i) => { gsap.to(el, { y: 0, duration: 1.2, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 85%' }, delay: i * 0.12 }) });
+        const horizontalTrack = document.getElementById('horizontalTrack'); if (horizontalTrack && window.innerWidth > 768) { const totalScroll = horizontalTrack.scrollWidth - window.innerWidth; gsap.to(horizontalTrack, { x: -totalScroll, ease: 'none', scrollTrigger: { trigger: '.horizontal-section', start: 'top top', end: () => '+=' + totalScroll, scrub: 1, pin: true, anticipatePin: 1, invalidateOnRefresh: true } }) }
+        gsap.utils.toArray('.horizontal-card').forEach((card, i) => { gsap.from(card, { opacity: 0, y: 60, scale: 0.95, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 90%' }, delay: i * 0.05 }) });
+        gsap.from('.work-label', { y: 40, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.work-label', start: 'top 85%' } });
+        gsap.utils.toArray('.work-title .line-inner').forEach((el, i) => { gsap.to(el, { y: 0, duration: 1, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 85%' }, delay: i * 0.1 }) });
+        gsap.from('.work-btn', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.work-btn', start: 'top 85%' } });
+        gsap.utils.toArray('.work-grid-item').forEach((item, i) => { gsap.from(item, { y: 80, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: item, start: 'top 85%' }, delay: i * 0.12 }) });
+        gsap.utils.toArray('.quote-section .line-inner').forEach((el, i) => { gsap.to(el, { y: 0, duration: 1.2, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 80%' }, delay: i * 0.12 }) });
+        gsap.from('.quote-attr', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.quote-attr', start: 'top 85%' } });
+        gsap.from('.test-label', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.test-label', start: 'top 85%' } });
+        gsap.utils.toArray('.test-card').forEach((card, i) => { gsap.from(card, { y: 60, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 85%' }, delay: i * 0.15 }) });
+        gsap.from('.ship-label', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.ship-label', start: 'top 85%' } });
+        gsap.utils.toArray('.ship-item').forEach((item, i) => { gsap.from(item, { y: 30, opacity: 0, duration: 0.6, ease: 'power3.out', scrollTrigger: { trigger: item, start: 'top 90%' }, delay: i * 0.04 }) });
+        gsap.utils.toArray('.cta-title .line-inner').forEach((el, i) => { gsap.to(el, { y: 0, duration: 1.2, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 80%' }, delay: i * 0.1 }) });
+        gsap.from('.cta-desc', { y: 40, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.cta-desc', start: 'top 85%' } });
+        gsap.from('.cta-btns', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.cta-btns', start: 'top 85%' } });
+        gsap.from('.cta-extra', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.cta-extra', start: 'top 90%' } });
+        document.querySelectorAll('.mag-btn').forEach(btn => { btn.addEventListener('mousemove', e => { const r = btn.getBoundingClientRect(), x = e.clientX - r.left - r.width / 2, y = e.clientY - r.top - r.height / 2; gsap.to(btn, { x: x * 0.25, y: y * 0.25, duration: 0.3, ease: 'power2.out' }) }); btn.addEventListener('mouseleave', () => { gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,0.4)' }) }) });
+        gsap.to('#heroTitle', { yPercent: -30, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1 } });
+        const observer = new MutationObserver(() => { document.querySelectorAll('.hoverable,a,button').forEach(el => { if (!el.dataset.cursorBound) { el.dataset.cursorBound = 'true'; el.addEventListener('mouseenter', () => cursor.classList.add('hover')); el.addEventListener('mouseleave', () => cursor.classList.remove('hover')) } }) }); observer.observe(document.body, { childList: true, subtree: true });
+    </script>
+</body>
+
+</html>
